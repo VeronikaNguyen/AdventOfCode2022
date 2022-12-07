@@ -26,6 +26,11 @@ std::vector<std::string> split_string_by_delemeter(const std::string &s, char de
 
 
 auto read_stacks_and_moves(std::string file_name) {
+    struct stacks_and_moves{
+        std::vector<std::deque<char>> stacks;
+        std::vector<std::array<int, 3>> moves;
+    };
+
     std::vector<std::deque<char>> stacks;
     std::vector<std::array<int, 3>> moves;
 
@@ -35,7 +40,7 @@ auto read_stacks_and_moves(std::string file_name) {
     while (getline(infile, line)) {
         bool first_empty_space = true;
         if (initialize) {
-            for (int stack_len = 0; stack_len < 9; stack_len++) {
+            for (int stack_len = 0; stack_len < line.size() / 4 + 1; stack_len++) {
                 stacks.push_back(std::deque<char>{});
             }
             initialize = false;
@@ -73,12 +78,6 @@ auto read_stacks_and_moves(std::string file_name) {
             moves.push_back(move);
         }
     }
-
-    struct stacks_and_moves{
-        std::vector<std::deque<char>> stacks;
-        std::vector<std::array<int, 3>> moves;
-    };
-
     return stacks_and_moves{stacks, moves}; 
 }
 
