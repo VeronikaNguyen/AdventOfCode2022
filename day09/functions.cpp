@@ -28,7 +28,7 @@ template <typename T> int sgn(T val) {
 }
 
 
-auto read_positions(std::string file_name) {
+auto read_instructions(std::string file_name) {
     std::ifstream infile(file_name);
     std::string line = "";
     std::vector<std::vector<std::string>> instructions;
