@@ -1,3 +1,4 @@
+#include <deque>
 #include <fstream>
 #include <iostream>
 #include <utility>
@@ -43,7 +44,11 @@ auto read_heightmap(std::string file_name) {
 
 bool set_steps(const std::vector<std::vector<int>>& heightmap, std::vector<std::vector<int>>& steps_from_S, std::pair<int, int> position, std::pair<int, int> neighbour_position) {
     if (heightmap[neighbour_position.first][neighbour_position.second] - heightmap[position.first][position.second] <= 1) {
-        if (steps_from_S[neighbour_position.first][neighbour_position.second] == -1 or steps_from_S[neighbour_position.first][neighbour_position.second] > steps_from_S[position.first][position.second] + 1) {
+        if (
+            steps_from_S[neighbour_position.first][neighbour_position.second] == -1 
+            or steps_from_S[neighbour_position.first][neighbour_position.second] > steps_from_S[position.first][position.second] + 1
+        ) 
+        {
             steps_from_S[neighbour_position.first][neighbour_position.second] = steps_from_S[position.first][position.second] + 1;
             return true;
         }
@@ -52,26 +57,32 @@ bool set_steps(const std::vector<std::vector<int>>& heightmap, std::vector<std::
 }
 
 
-void determine_steps_for_neighbours(const std::vector<std::vector<int>>& heightmap, std::vector<std::vector<int>>& steps_from_S, std::pair<int, int> position) {
+void determine_steps_for_neighbours(const std::vector<std::vector<int>>& heightmap, std::vector<std::vector<int>>& steps_from_S, std::deque<std::pair<int, int>>& queue) {
+    std::pair<int, int> position = queue[0];
     if (position.first > 0) {
         if (set_steps(heightmap, steps_from_S, position, {position.first - 1, position.second})) {
-            determine_steps_for_neighbours(heightmap, steps_from_S, {position.first - 1, position.second});
+            queue.push_back({position.first - 1, position.second});
         }
     } 
     if (position.first < heightmap.size() - 1) {
         if (set_steps(heightmap, steps_from_S, position, {position.first + 1, position.second})) {
-            determine_steps_for_neighbours(heightmap, steps_from_S, {position.first + 1, position.second});
+            queue.push_back({position.first + 1, position.second});
         }
     } 
     if (position.second > 0) {
         if (set_steps(heightmap, steps_from_S, position, {position.first, position.second - 1})) {
-            determine_steps_for_neighbours(heightmap, steps_from_S, {position.first, position.second - 1});
+            queue.push_back({position.first, position.second - 1});
         }
     } 
     if (position.second < heightmap[0].size() - 1) {
         if (set_steps(heightmap, steps_from_S, position, {position.first, position.second + 1})) {
-            determine_steps_for_neighbours(heightmap, steps_from_S, {position.first, position.second + 1});
+            queue.push_back({position.first, position.second + 1});
+            
         }
+    }
+    queue.pop_front();
+    if (queue.size() > 0) {
+        determine_steps_for_neighbours(heightmap, steps_from_S, queue);
     }
     return;
 }
@@ -83,8 +94,9 @@ int determine_shortest_path_from_start_position(const std::vector<std::vector<in
         std::fill(vector.begin(), vector.end(), -1);
     }
     steps_from_S[start_position.first][start_position.second] = 0;
-
-    determine_steps_for_neighbours(heightmap, steps_from_S, start_position);
+    
+    std::deque<std::pair<int, int>> queue = {start_position};
+    determine_steps_for_neighbours(heightmap, steps_from_S, queue);
     return steps_from_S[end_position.first][end_position.second];
 }
 
